@@ -3,7 +3,7 @@ import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
 import axios from 'axios';
 
-const axios = require('axios');
+const axios = require('axios').default;
 let lightbox = new SimpleLightbox('.gallery a', {
   captions: true,
   captionsData: 'alt',
@@ -85,7 +85,6 @@ async function onLoadBtnClick() {
 }
 
 async function requestImages(userRequest, page) {
-  // console.log('userRequest= ', userRequest, 'page counter = ', page);  
   const response = await axios.get(`https://pixabay.com/api/?key=${KEY}&q=${userRequest}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`);
   return response;
 }
@@ -93,7 +92,6 @@ async function requestImages(userRequest, page) {
 
 // CREATE MARK-UP RENDER
 function createImageCard(arrayOfImages) {
-  // console.log(arrayOfImages);
   const setOfImages = arrayOfImages.map(element => {
     return`
       <div class="photo-card">
