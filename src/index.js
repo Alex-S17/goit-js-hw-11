@@ -1,5 +1,3 @@
-
-// import requestImages from './requestImages';
 import Notiflix from 'notiflix';
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
@@ -27,42 +25,52 @@ loadMoreEl.classList.add('is-hidden');
 
 formEl.addEventListener('submit', onSubmit);
 
-function onSubmit(event) {
+async function onSubmit(event) {
   event.preventDefault();
   loadMoreEl.classList.add('is-hidden');
-  page = 1;
-  userRequest = event.currentTarget.searchQuery.value.trim();
+  
+  try {
+    page = 1;
+    userRequest = event.currentTarget.searchQuery.value.trim();
   
     setCardEl.innerHTML = '';
-  userRequestStorage = userRequest;
+    userRequestStorage = userRequest;
  
+    const response = await requestImages(userRequestStorage, page);
+    const arrayOfImages = response.data.hits;
+    const numberOfImages = response.data.totalHits;
+  
+    if (arrayOfImages.length === 0) {
+      return Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+    }
+    if (page === 1) {
+      Notiflix.Notify.info(`Hooray! We found ${numberOfImages} images.`);
+    }
 
-  requestImages(userRequestStorage, page) 
-    .then(response => {
-      const arrayOfImages = response.data.hits;
-      const numberOfImages = response.data.totalHits;
-       
-      // if (numberOfImages > 40) {
-      //   loadMoreEl.classList.remove('is-hidden');
-      // } else {loadMoreEl.classList.add('is-hidden');}
-      
-      
-      if (arrayOfImages.length === 0) {
-        Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-        return;
-      }
-      if (page === 1) {
-        Notiflix.Notify.info(`Hooray! We found ${numberOfImages} images.`);
-      }
+    // Block for smoothing scrolling - START
+    createImageCard(arrayOfImages);
+    lightbox.refresh();
+    loadMoreEl.classList.remove('is-hidden');
+    
+    const { height: cardHeight } = document
+      .querySelector(".gallery")
+      .firstElementChild.getBoundingClientRect();
 
-      createImageCard(arrayOfImages);
-      lightbox.refresh();
-      loadMoreEl.classList.remove('is-hidden');
-    })         
+    window.scrollBy({
+      top: cardHeight * -100,
+      behavior: "smooth",
+    });
+    // Block for smoothing scrolling - END
+  } catch (error) {
+    console.log(error.message);
+  } 
 }
 
-//  BUTTON
-loadMoreEl.addEventListener('click', () => {
+
+//  BUTTON "Load More"
+loadMoreEl.addEventListener('click', onLoadBtnClick);
+
+async function onLoadBtnClick() {
   page += 1;
   
   if (page > totalPage) {
@@ -71,24 +79,21 @@ loadMoreEl.addEventListener('click', () => {
     return;
   }
        
-  requestImages(userRequestStorage, page)
-    .then(response => {
-      createImageCard(response.data.hits);
-      lightbox.refresh();   
-  })
-          
-});
+  const response = await requestImages(userRequestStorage, page);
+  createImageCard(response.data.hits);
+  lightbox.refresh();     
+}
 
-
-function requestImages(userRequest, page) {
-        console.log('userRequest= ', userRequest, 'page counter = ', page);
-  return axios.get(`https://pixabay.com/api/?key=${KEY}&q=${userRequest}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`)
+async function requestImages(userRequest, page) {
+  // console.log('userRequest= ', userRequest, 'page counter = ', page);  
+  const response = await axios.get(`https://pixabay.com/api/?key=${KEY}&q=${userRequest}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`);
+  return response;
 }
 
 
 // CREATE MARK-UP RENDER
 function createImageCard(arrayOfImages) {
-  console.log(arrayOfImages);
+  // console.log(arrayOfImages);
   const setOfImages = arrayOfImages.map(element => {
     return`
       <div class="photo-card">
