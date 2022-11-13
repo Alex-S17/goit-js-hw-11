@@ -1,7 +1,10 @@
 import Notiflix from 'notiflix';
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
-import axios from 'axios';
+// import axios from 'axios';
+
+import requestImages from './requestImages';
+
 
 // const axios = require('axios').default;
 let lightbox = new SimpleLightbox('.gallery a', {
@@ -10,12 +13,12 @@ let lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 
-const KEY = '30789164-35a7cf56b7677b8602e966f0f';
+// const KEY = '30789164-35a7cf56b7677b8602e966f0f';
 
 let page = 1;
 let userRequest = '';
 let userRequestStorage;
-const totalPage = 500 / 40;
+const totalPage = 100 / 40;
 
 const formEl = document.querySelector('#search-form');
 const setCardEl = document.querySelector('.gallery');
@@ -41,17 +44,18 @@ async function onSubmit(event) {
     const numberOfImages = response.data.totalHits;
   
     if (arrayOfImages.length === 0) {
+      loadMoreEl.classList.add('is-hidden');
       return Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
     }
     if (page === 1) {
       Notiflix.Notify.info(`Hooray! We found ${numberOfImages} images.`);
     }
 
-    // Block for smoothing scrolling - START
     createImageCard(arrayOfImages);
     lightbox.refresh();
     loadMoreEl.classList.remove('is-hidden');
-    
+
+    // Block for smoothing scrolling - START   
     const { height: cardHeight } = document
       .querySelector(".gallery")
       .firstElementChild.getBoundingClientRect();
@@ -84,10 +88,10 @@ async function onLoadBtnClick() {
   lightbox.refresh();     
 }
 
-async function requestImages(userRequest, page) {
-  const response = await axios.get(`https://pixabay.com/api/?key=${KEY}&q=${userRequest}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`);
-  return response;
-}
+// async function requestImages(userRequest, page) {
+//   const response = await axios.get(`https://pixabay.com/api/?key=${KEY}&q=${userRequest}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`);
+//   return response;
+// }
 
 
 // CREATE MARK-UP RENDER
