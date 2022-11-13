@@ -5,20 +5,18 @@ import "simplelightbox/dist/simple-lightbox.min.css";
 
 import requestImages from './requestImages';
 
-
 // const axios = require('axios').default;
 let lightbox = new SimpleLightbox('.gallery a', {
   captions: true,
   captionsData: 'alt',
   captionDelay: 250,
 });
-
 // const KEY = '30789164-35a7cf56b7677b8602e966f0f';
-
+let totalImageNumber;
 let page = 1;
 let userRequest = '';
 let userRequestStorage;
-const totalPage = 100 / 40;
+let totalPage;
 
 const formEl = document.querySelector('#search-form');
 const setCardEl = document.querySelector('.gallery');
@@ -42,7 +40,9 @@ async function onSubmit(event) {
     const response = await requestImages(userRequestStorage, page);
     const arrayOfImages = response.data.hits;
     const numberOfImages = response.data.totalHits;
-  
+
+    totalImageNumber = response.data.totalHits;
+
     if (arrayOfImages.length === 0) {
       loadMoreEl.classList.add('is-hidden');
       return Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
@@ -76,16 +76,22 @@ loadMoreEl.addEventListener('click', onLoadBtnClick);
 
 async function onLoadBtnClick() {
   page += 1;
-  
-  if (page > totalPage) {
+         
+  const response = await requestImages(userRequestStorage, page);
+  createImageCard(response.data.hits);
+  lightbox.refresh();   
+
+  totalPage = Math.ceil(totalImageNumber / 40);
+ 
+
+  // console.log('page=', page);
+  // console.log('totalPage=', totalPage);
+  // console.log(totalImageNumber);
+  if (page >= totalPage) {
     loadMoreEl.classList.add('is-hidden');
     Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
     return;
   }
-       
-  const response = await requestImages(userRequestStorage, page);
-  createImageCard(response.data.hits);
-  lightbox.refresh();     
 }
 
 // async function requestImages(userRequest, page) {
