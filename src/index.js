@@ -2,16 +2,21 @@ import Notiflix from 'notiflix';
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
 // import axios from 'axios';
+// = The above string was switched off because
+// the library Axios uses in the module requestImages.js.
+// If Axios uses in this file (not in the module),
+// the string " import axios from 'axios'; " is nesessary.
 
 import requestImages from './requestImages';
 
-// const axios = require('axios').default;
 let lightbox = new SimpleLightbox('.gallery a', {
   captions: true,
   captionsData: 'alt',
   captionDelay: 250,
 });
-// const KEY = '30789164-35a7cf56b7677b8602e966f0f';
+
+// const KEY = '30789164-35a7cf56b7677b8602e966f0f'; // It was replaced to the module requestImages.js
+
 let totalImageNumber;
 let page = 1;
 let userRequest = '';
@@ -44,7 +49,6 @@ async function onSubmit(event) {
     totalImageNumber = response.data.totalHits;
 
     if (arrayOfImages.length === 0) {
-      loadMoreEl.classList.add('is-hidden');
       return Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
     }
     if (page === 1) {
@@ -65,6 +69,7 @@ async function onSubmit(event) {
       behavior: "smooth",
     });
     // Block for smoothing scrolling - END
+
   } catch (error) {
     console.log(error.message);
   } 
@@ -82,11 +87,7 @@ async function onLoadBtnClick() {
   lightbox.refresh();   
 
   totalPage = Math.ceil(totalImageNumber / 40);
- 
-
-  // console.log('page=', page);
-  // console.log('totalPage=', totalPage);
-  // console.log(totalImageNumber);
+   
   if (page >= totalPage) {
     loadMoreEl.classList.add('is-hidden');
     Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
@@ -97,7 +98,7 @@ async function onLoadBtnClick() {
 // async function requestImages(userRequest, page) {
 //   const response = await axios.get(`https://pixabay.com/api/?key=${KEY}&q=${userRequest}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`);
 //   return response;
-// }
+// } // THIS FUNCTION WAS REPLACE TO THE MODUL requestImages.js
 
 
 // CREATE MARK-UP RENDER
