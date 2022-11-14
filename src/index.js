@@ -50,13 +50,17 @@ async function onSubmit(event) {
 
     if (arrayOfImages.length === 0) {
       return Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-    }
+    };
     if (page === 1) {
-      Notiflix.Notify.info(`Hooray! We found ${numberOfImages} images.`);
-    }
+      Notiflix.Notify.success(`Hooray! We found ${numberOfImages} images.`);
+    };
 
     createImageCard(arrayOfImages);
     lightbox.refresh();
+    
+    if (totalImageNumber <= 40) {
+      return notifyAboutEndOfCards();
+    };
     loadMoreEl.classList.remove('is-hidden');
 
     // Block for smoothing scrolling - START   
@@ -72,8 +76,8 @@ async function onSubmit(event) {
 
   } catch (error) {
     console.log(error.message);
-  } 
-}
+  };
+};
 
 
 //  BUTTON "Load More"
@@ -90,10 +94,10 @@ async function onLoadBtnClick() {
    
   if (page >= totalPage) {
     loadMoreEl.classList.add('is-hidden');
-    Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
+    notifyAboutEndOfCards();
     return;
   }
-}
+};
 
 // async function requestImages(userRequest, page) {
 //   const response = await axios.get(`https://pixabay.com/api/?key=${KEY}&q=${userRequest}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`);
@@ -104,7 +108,7 @@ async function onLoadBtnClick() {
 // CREATE MARK-UP RENDER
 function createImageCard(arrayOfImages) {
   const setOfImages = arrayOfImages.map(element => {
-    return`
+    return `
       <div class="photo-card">
         <a class="gallery__item" href="${element.largeImageURL}"> 
           <img class="image" src="${element.webformatURL}" alt=${element.tags} loading="lazy" />
@@ -128,8 +132,11 @@ function createImageCard(arrayOfImages) {
           </p>
         </div>
       </div>`
-  })
+  });
 
   setCardEl.insertAdjacentHTML('beforeend', setOfImages.join(''));   
-}
+};
 
+function notifyAboutEndOfCards() {
+  Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
+};
